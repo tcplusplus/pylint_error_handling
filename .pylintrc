@@ -1,0 +1,5 @@
+[MASTER]
+load-plugins=pylint_error_handling.docstring_checks
+
+[MESSAGES CONTROL]
+enable=useless-suppression
