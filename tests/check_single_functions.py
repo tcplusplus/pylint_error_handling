@@ -47,3 +47,40 @@ def test_multiple_exceptions2(test: int) -> None:
         raise KeyError()
     except KeyError:
         pass
+
+def hierarchical() -> None:
+    """
+    Hello world
+    :raises KeyError: test
+    :raises ZeroDivisionError: test
+    """
+    test_with_documentation()
+    raise KeyError()
+
+def hierarchical_with_error() -> None:  # pylint: disable=missing-exception-doc
+    """
+    Hello world
+    :raises KeyError: test
+    """
+    test_with_documentation()
+    raise KeyError()
+
+def hierarchical_with_catch() -> None:
+    """
+    Hello world
+    :raises KeyError:
+    """
+    try:
+        test_with_documentation()
+    except ZeroDivisionError:
+        pass
+    raise KeyError()
+
+def test_general_errors() -> None:
+    """
+    Hello world
+    """
+    try:
+        raise KeyError()
+    except ValueError:
+        pass
