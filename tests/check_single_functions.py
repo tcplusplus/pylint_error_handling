@@ -29,7 +29,21 @@ def test_multiple_exceptions(test: int) -> None:
     Hello world
     :param test:
     :raises KeyError: test
+    :raises ValueError: test < 0
     """
     if test < 0:
         raise ValueError()
     raise KeyError()
+
+def test_multiple_exceptions2(test: int) -> None:
+    """
+    Hello world
+    :param test:
+    :raises ValueError: test < 0
+    """
+    if test < 0:
+        raise ValueError()
+    try:
+        raise KeyError()
+    except KeyError:
+        pass

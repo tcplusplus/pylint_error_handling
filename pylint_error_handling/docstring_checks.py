@@ -41,6 +41,9 @@ class ExceptionDocstringChecker(BaseChecker):
                 exc_type = self._get_exception_type(child)
                 if exc_type:
                     raised_exceptions.add(exc_type)
+            elif isinstance(child, astroid.If):
+                # Recursively check within if-else blocks
+                raised_exceptions.update(self._collect_raised_exceptions(child))
 
         return raised_exceptions
 
@@ -54,6 +57,9 @@ class ExceptionDocstringChecker(BaseChecker):
                     exc_type = self._get_exception_type(handler)
                     if exc_type:
                         handled_exceptions.add(exc_type)
+            elif isinstance(child, astroid.If):
+                # Recursively check within if-else blocks
+                handled_exceptions.update(self._collect_handled_exceptions(child))
 
         return handled_exceptions
 
