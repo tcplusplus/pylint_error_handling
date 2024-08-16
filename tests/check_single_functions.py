@@ -76,7 +76,7 @@ def hierarchical_with_catch() -> None:
         pass
     raise KeyError()
 
-def test_general_errors() -> None:
+def test_general_errors() -> None:  # pylint: disable=missing-exception-doc
     """
     Hello world
     """
@@ -84,3 +84,22 @@ def test_general_errors() -> None:
         raise KeyError()
     except ValueError:
         pass
+
+def test_general_errors2() -> None:
+    """
+    Hello world
+    """
+    try:
+        raise KeyError()
+    except Exception:   # pylint: disable=broad-exception-caught
+        pass
+
+def test_multi_try_catch() -> None:
+    """
+    Hello World
+    """
+    try:
+        raise ValueError()
+    except ValueError:
+        pass
+    raise ValueError()
