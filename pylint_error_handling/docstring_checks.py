@@ -22,15 +22,9 @@ class ExceptionDocstringChecker(BaseChecker):
 
         # Collect all exceptions that are raised and handled in the function
         raised_exceptions = self._collect_raised_exceptions(node)
-        handled_exceptions = self._collect_handled_exceptions(node)
-
-        # Identify exceptions that are raised but not handled
-        unhandled_exceptions = raised_exceptions - handled_exceptions
-        if 'Exception' in handled_exceptions:
-            unhandled_exceptions = {}
 
         # Check if any unhandled exceptions are missing in the docstring
-        for exc_type in unhandled_exceptions:
+        for exc_type in raised_exceptions:
             if f':raises {exc_type}:' not in docstring:
                 self.add_message('missing-exception-doc', node=node, args=(exc_type,))
 
@@ -48,15 +42,16 @@ class ExceptionDocstringChecker(BaseChecker):
                 raised_exceptions.update(self._collect_raised_exceptions(child))
             elif isinstance(child, astroid.Try):
                 # Check for raised exceptions within try block
-                raised_exceptions.update(self._collect_raised_exceptions(child))
-
-                # Check exceptions raised by function calls within try block
+                raised = self._collect_raised_exceptions(child)
                 for stmt in child.body:
                     if isinstance(stmt, astroid.Expr) and isinstance(stmt.value, astroid.Call):
                         called_func = self._resolve_called_function(stmt.value)
                         if called_func:
                             called_exceptions = self._extract_exceptions_from_docstring(called_func)
-                            raised_exceptions.update(called_exceptions)
+                            raised.update(called_exceptions)
+                handled = self._collect_handled_exceptions(node)
+                if 'Exception' not in handled:
+                    raised_exceptions.update(raised - handled)
 
             elif isinstance(child, astroid.Expr) and isinstance(child.value, astroid.Call):
                 # Handle function calls and check their docstrings for raised exceptions
@@ -95,7 +90,6 @@ class ExceptionDocstringChecker(BaseChecker):
         """Extract the exception type as a string from the node."""
         if isinstance(node, astroid.ExceptHandler):
             if node.type:
-                print('node ' + node.type.as_string())
                 return node.type.as_string()
             else:
                 # This handles cases like `except Exception:` or `except:`

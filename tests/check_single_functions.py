@@ -94,7 +94,7 @@ def test_general_errors2() -> None:
     except Exception:   # pylint: disable=broad-exception-caught
         pass
 
-def test_multi_try_catch() -> None:
+def test_multi_try_catch() -> None:     # pylint: disable=missing-exception-doc
     """
     Hello World
     """
