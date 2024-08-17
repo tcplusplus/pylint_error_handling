@@ -1,6 +1,9 @@
 """
 Test pylint for simple functions
 """
+import json
+
+import requests
 
 def test_without_documentation() -> None:  # pylint: disable=missing-exception-doc
     """
@@ -103,3 +106,33 @@ def test_multi_try_catch() -> None:     # pylint: disable=missing-exception-doc
     except ValueError:
         pass
     raise ValueError()
+
+def test_requests() -> None:
+    """
+    Hello world
+    :raises TimeoutError: on timeout
+    :raises ConnectionError: no internet
+    """
+    requests.get('http://www.google.com', timeout=1)
+
+def test_requests_no_comments() -> None:    # pylint: disable=missing-exception-doc
+    """
+    Hello world
+    """
+    result = requests.get('http://www.google.com', timeout=1)
+    print(result)
+
+def test_json() -> None:
+    """
+    Hello world
+    :raises JSONDecodeError: todo
+    """
+    a = json.loads('sdf')
+    print(a)
+
+def test_json_no_comments() -> None:  # pylint: disable=missing-exception-doc
+    """
+    Hello world
+    """
+    a = json.loads('sdf')
+    print(a)

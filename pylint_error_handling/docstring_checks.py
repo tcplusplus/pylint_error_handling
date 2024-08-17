@@ -1,6 +1,14 @@
 from pylint.checkers import BaseChecker
 import astroid
 
+stubs = {
+    'requests.get': {'TimeoutError', 'ConnectionError'},
+    'requests.post': {'TimeoutError', 'ConnectionError'},
+    'requests.put': {'TimeoutError', 'ConnectionError'},
+    'requests.delete': {'TimeoutError', 'ConnectionError'},
+    'json.loads': {'JSONDecodeError'}
+}
+
 class ExceptionDocstringChecker(BaseChecker):
     name = 'exception-docstring-checker'
     priority = -1
@@ -43,6 +51,7 @@ class ExceptionDocstringChecker(BaseChecker):
             elif isinstance(child, astroid.Try):
                 # Check for raised exceptions within try block
                 raised = self._collect_raised_exceptions(child)
+
                 for stmt in child.body:
                     if isinstance(stmt, astroid.Expr) and isinstance(stmt.value, astroid.Call):
                         called_func = self._resolve_called_function(stmt.value)
@@ -55,10 +64,25 @@ class ExceptionDocstringChecker(BaseChecker):
 
             elif isinstance(child, astroid.Expr) and isinstance(child.value, astroid.Call):
                 # Handle function calls and check their docstrings for raised exceptions
-                called_func = self._resolve_called_function(child.value)
-                if called_func:
-                    called_exceptions = self._extract_exceptions_from_docstring(called_func)
-                    raised_exceptions.update(called_exceptions)
+                func = child.as_string().split('(')[0]
+                if func in stubs:
+                    raised_exceptions.update(stubs[func])
+                else:
+                    called_func = self._resolve_called_function(child.value)
+                    if called_func:
+                        called_exceptions = self._extract_exceptions_from_docstring(called_func)
+                        raised_exceptions.update(called_exceptions)
+            elif isinstance(child, astroid.Assign) and isinstance(child.value, astroid.Call):
+                child = child.value.func
+                func = child.as_string().split('(')[0]
+                if func in stubs:
+                    raised_exceptions.update(stubs[func])
+                else:
+                    called_func = self._resolve_called_function(child.value)
+                    if called_func:
+                        called_exceptions = self._extract_exceptions_from_docstring(called_func)
+                        raised_exceptions.update(called_exceptions)
+
 
         return raised_exceptions
 
